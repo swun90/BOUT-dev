@@ -10,6 +10,10 @@
 #include <output.hxx>
 #include <globals.hxx>
 
+#ifndef NC_CLASSIC_MODEL
+#define NC_CLASSIC_MODEL 0
+#endif
+
 NcdfCapi::NcdfCapi() : datafile(0) {
   
 }
