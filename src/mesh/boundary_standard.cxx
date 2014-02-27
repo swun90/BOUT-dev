@@ -834,7 +834,7 @@ void BoundaryRelax::apply_ddt(Field2D &f) {
 
 void BoundaryRelax::apply_ddt(Field3D &f) {
 #ifdef CHECK
-  msg_stack.push("BoundaryRelax::apply_ddt(Field2D)");
+  msg_stack.push("BoundaryRelax::apply_ddt(Field3D)");
 #endif
   
   // Make a copy of f
