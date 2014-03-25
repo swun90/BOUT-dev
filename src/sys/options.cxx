@@ -56,6 +56,10 @@ void Options::set(const string &key, const string &val, const string &source) {
   options[lowercase(key)] = opt;
 }
 
+void Options::set(const string &key, const char* val, const string &source) {
+  set(key, string(val), source);
+}
+
 bool Options::isSet(const string &key) {
   map<string, OptionValue>::iterator it(options.find(lowercase(key)));
   return it != options.end();

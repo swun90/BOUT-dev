@@ -144,9 +144,6 @@ class Solver {
   virtual int n3Dvars() const {return f3d.size();}  ///< Number of 3D variables. Vectors count as 3
   
   int rhs_ncalls; ///< Number of calls to the RHS function
-
-  void setRestartDir(const string &dir);
-  void setRestartDir(const char* dir) {string s = string(dir); setRestartDir(s); }
   
   static Solver* create(Options *opts = NULL);
   static Solver* create(SolverType &type, Options *opts = NULL);
@@ -186,9 +183,7 @@ protected:
   vector< VarStr<Vector3D> > v3d;
   
   Datafile restart; ///< Restart file object
-
-  string restartdir;  ///< Directory for restart files
-  string restartext;  ///< Restart file extension
+  
   int archive_restart;
 
   bool has_constraints; ///< Can this solver.hxxandle constraints? Set to true if so.

@@ -252,17 +252,37 @@ void BoutInitialise(int &argc, char **&argv) {
     // Set up the "dump" data output file
     output << "Setting up output (dump) file\n";
 
-    if(!options->getSection("output")->isSet("floats"))
-      options->getSection("output")->set("floats", true, "default"); // by default output floats
-
+    Options *outopts = options->getSection("output");
+    
+    if(!outopts->isSet("floats"))
+      outopts->set("floats", true, "default"); // by default output floats
+    
+    if(!outopts->isSet("path"))
+      outopts->set("path", data_dir, "default");
+    
+    if(!outopts->isSet("prefix")) {
+      output << "Setting prefix\n";
+      outopts->set("prefix", "BOUT.dmp", "default");
+    }
+    
+    if(!outopts->isSet("format"))
+      outopts->set("format", dump_ext, "default");
+    
     dump = Datafile(options->getSection("output"));
     
     /// Open a file for the output
     if(append) {
-      dump.opena("%s/BOUT.dmp.%s", data_dir, dump_ext.c_str());
+      dump.opena();
     }else {
-      dump.openw("%s/BOUT.dmp.%s", data_dir, dump_ext.c_str());
+      dump.openw();
     }
+
+    // Set restart path to output path
+    if(!options->getSection("restart")->isSet("path"))
+      options->getSection("restart")->set("path", data_dir, "default");
+    
+    if(!options->getSection("restart")->isSet("prefix"))
+      options->getSection("restart")->set("prefix", "BOUT.restart", "default");
 
     /// Add book-keeping variables to the output files
     dump.writeVar(BOUT_VERSION, "BOUT_VERSION");

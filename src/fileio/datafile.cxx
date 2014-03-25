@@ -53,14 +53,19 @@ Datafile::Datafile(Options *opt) : parallel(false), flush(true), guards(true), f
   OPTION(opt, parallel, false); // By default no parallel formats for now
   OPTION(opt, flush, true);     // Safer. Disable explicitly if required
   OPTION(opt, guards, true);    // Compatible with old behavior
-  OPTION(opt, floats, false); // High precision by default
+  OPTION(opt, floats, false);   // High precision by default
   OPTION(opt, openclose, true); // Open and close every write or read
-  OPTION(opt, enabled, true);
+  OPTION(opt, enabled, true);   // Switch off output. Mainly for testing
+  OPTION(opt, path,   "data");  // Default directory
+  OPTION(opt, prefix, "BOUT.dmp"); // Default prefix
+  OPTION(opt, format, "nc");    // Default file format
 }
 
 Datafile::Datafile(const Datafile &other) : parallel(other.parallel), flush(other.flush), guards(other.guards), 
                                             floats(other.floats), openclose(other.openclose), 
-                                            enabled(other.enabled), file(NULL), int_arr(other.int_arr), 
+                                            enabled(other.enabled), 
+					    path(other.path), prefix(other.prefix), format(other.format),
+					    file(NULL), int_arr(other.int_arr), 
                                             BoutReal_arr(other.BoutReal_arr), f2d_arr(other.f2d_arr), 
                                             f3d_arr(other.f3d_arr), v2d_arr(other.v2d_arr), v3d_arr(other.v3d_arr) {
   
@@ -74,6 +79,9 @@ Datafile& Datafile::operator=(const Datafile &rhs) {
   floats     = rhs.floats;
   openclose    = rhs.openclose;
   enabled      = rhs.enabled;
+  path         = rhs.path;
+  prefix       = rhs.prefix;
+  format       = rhs.format;
   file         = NULL; // All values copied except this
   int_arr      = rhs.int_arr;
   BoutReal_arr = rhs.BoutReal_arr;
@@ -87,6 +95,24 @@ Datafile& Datafile::operator=(const Datafile &rhs) {
 Datafile::~Datafile() {
   if(file != NULL)
     delete file;
+}
+
+bool Datafile::openr() {
+  // Use defaults from options
+  string name = path + string("/") + prefix + string(".") + format;
+  return openr(name.c_str());
+}
+
+bool Datafile::openw() {
+  // Use defaults from options
+  string name = path + string("/") + prefix + string(".") + format;
+  return openw(name.c_str());
+}
+
+bool Datafile::opena() {
+  // Use defaults from options
+  string name = path + string("/") + prefix + string(".") + format;
+  return opena(name.c_str());
 }
 
 bool Datafile::openr(const char *format, ...) {
@@ -508,6 +534,22 @@ bool Datafile::write(const char *format, ...) const {
   tmp.close();
   
   return ret;
+}
+
+bool Datafile::writeModPrefix(const char *format, ...) {
+  if(!enabled)
+    return true;
+  
+  va_list ap;  // List of arguments
+  if(format == (const char*) NULL)
+    return false;
+  char pre[512];
+  va_start(ap, format);
+  vsprintf(pre, format, ap);
+  va_end(ap);
+  
+  string name = path + string("/") + string(pre) + string(".") + format;
+  return write(name.c_str());
 }
 
 bool Datafile::writeVar(const int &i, const char *name) {

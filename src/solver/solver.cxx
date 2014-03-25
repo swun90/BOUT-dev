@@ -54,15 +54,6 @@ Solver::Solver(Options *opts) : options(opts), model(0) {
 
   // Zero timing
   rhs_ncalls = 0;
-
-  // Restart directory
-  if(options->isSet("restartdir")) {
-    // Solver-specific restart directory
-    options->get("restartdir", restartdir, "data");
-  }else {
-    // Use the root data directory
-    Options::getRoot()->get("datadir", restartdir, "data");
-  }
   
   // Restart option
   Options::getRoot()->get("restart", restarting, false);
@@ -508,14 +499,6 @@ int Solver::init(bool restarting, int nout, BoutReal tstep) {
     output.write("Archiving restart files every %d iterations\n",
         archive_restart);
   }
-
-  /// Get restart file extension
-  string dump_ext, restart_ext;
-
-  options->get("dump_format", dump_ext, "nc");
-  
-  options->get("restart_format", restart_ext, dump_ext);
-  restartext = string(restart_ext);
   
   // Set up restart options
   restart = Datafile(Options::getRoot()->getSection("restart"));
@@ -569,7 +552,7 @@ int Solver::init(bool restarting, int nout, BoutReal tstep) {
 #endif
     
     /// Load restart file
-    if(!restart.openr("%s/BOUT.restart.%s", restartdir.c_str(), restartext.c_str()))
+    if(!restart.openr())
       throw BoutException("Error: Could not open restart file\n");
     if(!restart.read())
       throw BoutException("Error: Could not read restart file\n");
@@ -606,7 +589,7 @@ int Solver::init(bool restarting, int nout, BoutReal tstep) {
   }
   
   /// Open the restart file for writing
-  if(!restart.openw("%s/BOUT.restart.%s", restartdir.c_str(), restartext.c_str()))
+  if(!restart.openw())
     throw BoutException("Error: Could not open restart file for writing\n");
   
   /// Mark as initialised. No more variables can be added
@@ -671,10 +654,6 @@ int Solver::call_timestep_monitors(BoutReal simtime, BoutReal lastdt) {
     int ret = model->runTimestepMonitor(simtime, lastdt);
   }
   return 0;
-}
-
-void Solver::setRestartDir(const string &dir) {
-  restartdir = dir;
 }
 
 /**************************************************************************

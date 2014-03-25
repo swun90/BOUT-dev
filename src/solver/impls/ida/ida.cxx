@@ -229,7 +229,7 @@ int IdaSolver::run() {
       output.write("Timestep failed. Aborting\n");
 
       // Write restart to a different file
-      restart.write("%s/BOUT.failed.%s", restartdir.c_str(), restartext.c_str());
+      restart.writeModPrefix("BOUT.failed");
 
       bout_error("SUNDIALS IDA timestep failed\n");
     }
@@ -238,7 +238,7 @@ int IdaSolver::run() {
     restart.write();
     
     if((archive_restart > 0) && (iteration % archive_restart == 0)) {
-      restart.write("%s/BOUT.restart_%04d.%s", restartdir.c_str(), iteration, restartext.c_str());
+      restart.writeModPrefix("BOUT.restart_%04d", iteration);
     }
     
     /// Call the monitor function
@@ -247,7 +247,7 @@ int IdaSolver::run() {
       // User signalled to quit
       
       // Write restart to a different file
-      restart.write("%s/BOUT.final.%s", restartdir.c_str(), restartext.c_str());
+      restart.writeModPrefix("BOUT.final");
       
       output.write("Monitor signalled to quit. Returning\n");
       break;

@@ -133,7 +133,7 @@ int EulerSolver::run() {
     restart.write();
     
     if((archive_restart > 0) && (iteration % archive_restart == 0)) {
-      restart.write("%s/BOUT.restart_%04d.%d.%s", restartdir.c_str(), iteration, MYPE, restartext.c_str());
+      restart.writeModPrefix("BOUT.restart_%04d", iteration);
     }
     
     /// Call the monitor function
@@ -142,7 +142,7 @@ int EulerSolver::run() {
       // User signalled to quit
       
       // Write restart to a different file
-      restart.write("%s/BOUT.final.%d.%s", restartdir.c_str(), MYPE, restartext.c_str());
+      restart.writeModPrefix("BOUT.final");
       
       output.write("Monitor signalled to quit. Returning\n");
       break;

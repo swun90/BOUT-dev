@@ -72,6 +72,7 @@ public:
   void set(const string &key, const BoutReal &val, const string &source="");
   void set(const string &key, const bool &val, const string &source="");
   void set(const string &key, const string &val, const string &source="");
+  void set(const string &key, const char *val, const string &source="");
 
   // Testing if set
   bool isSet(const string &key);

@@ -40,7 +40,11 @@ class Datafile {
   ~Datafile();
   
   Datafile& operator=(const Datafile &rhs);
-
+  
+  bool openr();
+  bool openw();
+  bool opena();
+  
   bool openr(const char *filename, ...);
   bool openw(const char *filename, ...); // Overwrites existing file
   bool opena(const char *filename, ...); // Appends if exists
@@ -63,6 +67,9 @@ class Datafile {
 
   bool write(const char *filename, ...) const; ///< Opens, writes, closes file
   
+  /// Write using a modified prefix
+  bool writeModPrefix(const char *format, ...);
+
   // Write a variable to the file now
   bool writeVar(const int &i, const char *name);
   bool writeVar(const BoutReal &r, const char *name);
@@ -74,7 +81,11 @@ class Datafile {
   bool floats;   // Low precision?
   bool openclose; // Open and close file for each write
   bool enabled;  // Enable / Disable writing
-
+  
+  string path;   // Default path
+  string prefix; // Default prefix
+  string format; // Default file format
+  
   DataFormat *file;
   char filename[512];
   bool appending;
