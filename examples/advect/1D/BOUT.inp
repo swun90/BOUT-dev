@@ -1,0 +1,32 @@
+
+NOUT = 20
+TIMESTEP = 0.1
+
+MZ = 129
+MYG = 0
+
+[mesh]
+symmetricGlobalX = true
+nx = 5
+ny = 1
+
+dx = 1.0
+
+[solver]
+#type = pvode
+mxstep = 10000
+type=rk3ssp
+timestep=0.0015625
+
+[n]
+scale = 1.0
+#function = sin(z)
+function=exp(-((z-1.5)^2/0.5^2)) + h(z-4.)*h(5-z)
+
+bndry_all = neumann
+
+[psi]
+scale = 1
+function = -(4*pi*x)
+
+
