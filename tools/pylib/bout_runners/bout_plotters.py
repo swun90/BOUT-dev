@@ -6,7 +6,6 @@ from __future__ import division
 from builtins import zip
 from builtins import str
 from builtins import range
-from past.utils import old_div
 from builtins import object
 
 # NOTE: This document uses folding. A hash-symbol followed by three {'s
@@ -454,7 +453,7 @@ class solution_plotter(bout_plotter):
 
         if self.number_of_overplots != False:
             # Divide into list of integers 
-            step = int(np.floor(old_div(float(nout),float(self.number_of_overplots))))
+            step = int(np.floor(float(nout)/float(self.number_of_overplots)))
             # 1 is the smallest step in range
             if step == 0:
                 step = 1
@@ -517,7 +516,7 @@ class solution_plotter(bout_plotter):
         # Convert the plot_time to index in the t_array
         time_indices = []
         for the_time in self.plot_times:
-            time_indices.append(round(old_div(the_time,timestep)))
+            time_indices.append(round(the_time/timestep))
         for plot_times_index, t_array_index in enumerate(time_indices):
             # Check if there are numbers in the plot_times out of bounds
             if t_array_index >= nout:
@@ -944,11 +943,11 @@ class convergence_plotter(bout_plotter):
                      (self.errors[variable]['spacing'][-1],\
                       self.errors[variable]['spacing'][0]),\
                      (\
-                      ((old_div(self.errors[variable]['spacing'][-1],\
-                        self.errors[variable]['spacing'][-1]))**order_inf)*\
+                      ((self.errors[variable]['spacing'][-1]/\
+                        self.errors[variable]['spacing'][-1])**order_inf)*\
                         self.errors[variable]['error_inf'][-1],\
-                      ((old_div(self.errors[variable]['spacing'][0],\
-                        self.errors[variable]['spacing'][-1]))**order_inf)*\
+                      ((self.errors[variable]['spacing'][0]/\
+                        self.errors[variable]['spacing'][-1])**order_inf)*\
                         self.errors[variable]['error_inf'][-1]\
                      ),\
                      'm--',\
@@ -962,11 +961,11 @@ class convergence_plotter(bout_plotter):
                      (self.errors[variable]['spacing'][-1],\
                       self.errors[variable]['spacing'][0]),\
                      (\
-                      ((old_div(self.errors[variable]['spacing'][-1],\
-                        self.errors[variable]['spacing'][-1]))**order_2)*\
+                      ((self.errors[variable]['spacing'][-1]/\
+                        self.errors[variable]['spacing'][-1])**order_2)*\
                         self.errors[variable]['error_2'][-1],\
-                      ((old_div(self.errors[variable]['spacing'][0],\
-                        self.errors[variable]['spacing'][-1]))**order_2)*\
+                      ((self.errors[variable]['spacing'][0]/\
+                        self.errors[variable]['spacing'][-1])**order_2)*\
                         self.errors[variable]['error_2'][-1]\
                      ),\
                      'c--',\

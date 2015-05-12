@@ -2,7 +2,6 @@ from __future__ import print_function
 from __future__ import division
 from builtins import str
 from builtins import range
-from past.utils import old_div
 # Routines for manipulating restart files
 
 try:
@@ -73,7 +72,7 @@ def split(nxpe, nype, path="data", output="./", informat="nc", outformat=None):
         print("ERROR: Old NPES is not a multiple of old NXPE")
         return False
 
-    old_nype = old_div(old_npes, old_nxpe)
+    old_nype = old_npes//old_nxpe
 
     if nype % old_nype != 0:
         print("SORRY: New nype must be a multiple of old nype")
@@ -108,10 +107,10 @@ def split(nxpe, nype, path="data", output="./", informat="nc", outformat=None):
     for mype in range(npes):
         # Calculate X and Y processor numbers
         pex = mype % nxpe
-        pey = int(old_div(mype, nxpe))
+        pey = mype//nxpe
 
-        old_pex = int(old_div(pex, xs))
-        old_pey = int(old_div(pey, ys))
+        old_pex = pex//xs
+        old_pey = pey//ys
 
         old_x = pex % xs
         old_y = pey % ys
@@ -290,7 +289,7 @@ def redistribute(npes, path="data", nxpe=None, output=".", informat=None, outfor
 
     old_npes = f.read('NPES')
     old_nxpe = f.read('NXPE')
-    old_nype = old_div(old_npes,old_nxpe)
+    old_nype = old_npes//old_nxpe
 
     if nfiles != old_npes:
         print("WARNING: Number of restart files inconsistent with NPES")
@@ -348,7 +347,7 @@ def redistribute(npes, path="data", nxpe=None, output=".", informat=None, outfor
         ideal = sqrt(float(nx) * float(npes) / float(ny)) # Results in square domain
 
         for i in range(1,npes+1):
-            if npes%i == 0 and nx%i == 0 and old_div(nx,i) >= mxg and ny%(old_div(npes,i)) == 0:
+            if npes%i == 0 and nx%i == 0 and nx//i >= mxg and ny%(npes//i) == 0:
                 # Found an acceptable value
                 # Warning: does not check branch cuts!
 
@@ -359,7 +358,7 @@ def redistribute(npes, path="data", nxpe=None, output=".", informat=None, outfor
             print("ERROR: could not find a valid value for nxpe")
             return False
 
-    nype = old_div(npes,nxpe)
+    nype = npes//nxpe
 
     outfile_list = []
     for i in range(npes):
@@ -370,10 +369,10 @@ def redistribute(npes, path="data", nxpe=None, output=".", informat=None, outfor
         inpath = os.path.join(path, "BOUT.restart."+str(i)+"."+outformat)
         infile_list.append(DataFile(inpath))
 
-    old_mxsub = old_div(nx,old_nxpe)
-    old_mysub = old_div(ny,old_nype)
-    mxsub = old_div(nx,nxpe)
-    mysub = old_div(ny,nype)
+    old_mxsub = nx//old_nxpe
+    old_mysub = ny//old_nype
+    mxsub = nx//nxpe
+    mysub = ny//nype
     for v in var_list:
           ndims = f.ndims(v)
 
@@ -385,7 +384,7 @@ def redistribute(npes, path="data", nxpe=None, output=".", informat=None, outfor
               data = numpy.zeros( (nx+2*mxg,ny+2*nyg) )
               for i in range(old_npes):
                   ix = i%old_nxpe
-                  iy = old_div(i,old_nxpe)
+                  iy = i//old_nxpe
                   ixstart = mxg
                   if ix == 0:
                       ixstart = 0
@@ -403,7 +402,7 @@ def redistribute(npes, path="data", nxpe=None, output=".", informat=None, outfor
               data = numpy.zeros( (nx+2*mxg,ny+2*myg,mz) )
               for i in range(old_npes):
                   ix = i%old_nxpe
-                  iy = old_div(i,old_nxpe)
+                  iy = i//old_nxpe
                   ixstart = mxg
                   if ix == 0:
                       ixstart = 0
@@ -424,7 +423,7 @@ def redistribute(npes, path="data", nxpe=None, output=".", informat=None, outfor
           # write data
           for i in range(npes):
               ix = i%nxpe
-              iy = old_div(i,nxpe)
+              iy = i//nxpe
               outfile = outfile_list[i]
               if v == "NPES":
                   outfile.write(v,npes)

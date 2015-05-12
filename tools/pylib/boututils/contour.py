@@ -6,7 +6,6 @@ http://members.bellatlantic.net/~vze2vrva/thesis.html
 """
 from __future__ import print_function
 from __future__ import division
-from past.utils import old_div
 
 try:
     import numpy as np
@@ -43,7 +42,7 @@ def contour(f, level):
                     # One of the corners is > level, and the other is <= level
                     ncross += 1
                     # Find location
-                    return old_div((level - a), (b - a))
+                    return (level - a)/(b - a)
                 else:
                     return None
             

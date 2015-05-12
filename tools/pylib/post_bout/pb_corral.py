@@ -5,7 +5,6 @@ from __future__ import absolute_import
 from __future__ import division
 from builtins import filter
 from builtins import range
-from past.utils import old_div
 from builtins import object
 import os
 import sys
@@ -350,8 +349,8 @@ class subset(LinRes):
 
 class _ref(object): #NOT a derived obj, just takes one as a var
     def __init__(self,input_obj,name='haswak',haswak=True):
-        allk = input_obj.k_r[:,1,old_div(input_obj.nx,2)] #one location for now
-        allkpar = input_obj.k_r[:,0,old_div(input_obj.nx,2)] #one location for now
+        allk = input_obj.k_r[:,1,input_obj.nx//2] #one location for now
+        allkpar = input_obj.k_r[:,0,input_obj.nx//2] #one location for now
         self.name = name
         
         self.gamma = []
@@ -361,19 +360,19 @@ class _ref(object): #NOT a derived obj, just takes one as a var
         self.soln['freq'] = []
  
         for i,k in enumerate(allk):
-            omega_star = old_div(-(k),(input_obj.L[i,old_div(input_obj.nx,2),old_div(input_obj.ny,2)])) 
+            omega_star = -(k)/(input_obj.L[i,input_obj.nx//2,input_obj.ny//2])
            
             
-            nu = (2*np.pi/input_obj.meta['lpar'][old_div(input_obj.nx,2)])**2 * input_obj.meta['sig_par'][0]
+            nu = (2*np.pi/input_obj.meta['lpar'][input_obj.nx//2])**2 * input_obj.meta['sig_par'][0]
             
             if haswak:
-                omega = old_div(-omega_star,(1 + (k)**2))
-                gamma = old_div(((k**2)*omega_star**2),(nu * (1+k**2)**3))
+                omega = -omega_star/(1 + (k)**2)
+                gamma = ((k**2)*omega_star**2)/(nu * (1+k**2)**3)
             else:
                 # omega = -np.sqrt(nu*omega_star)/(np.sqrt(2)*k) + nu**(3/2)/(8*np.sqrt(2*omega_star)*k**3)
                 # gamma = np.sqrt(nu*omega_star)/(np.sqrt(2)*k) - nu/(2* k**2) + nu**(3/2)/(8*np.sqrt(2*omega_star)*k**3)
-                omega = -omega_star + old_div((2*k**4*omega_star**3),nu**2) 
-                gamma = old_div((k*omega_star)**2,nu) - (5*(k**6*omega_star*4/nu**3))
+                omega = -omega_star + (2*k**4*omega_star**3)/nu**2
+                gamma = (k*omega_star)**2/nu - (5*(k**6*omega_star*4/nu**3))
             self.gamma.append(gamma)
             self.omega.append(omega)
         
@@ -384,13 +383,13 @@ class _ref(object): #NOT a derived obj, just takes one as a var
 class _model(object):  #NOT a derived class,but one that takes a class as input
     def __init__(self,input_obj,name='drift',haswak=False,
                  rho_conv=False,haswak2=False,varL=False,Lval=1.0,m=1):
-        allk = input_obj.k_r[:,1,old_div(input_obj.nx,2)] #one location for now
-        allkpar = input_obj.k_r[:,0,old_div(input_obj.nx,2)] #one location for now
+        allk = input_obj.k_r[:,1,input_obj.nx//2] #one location for now
+        allkpar = input_obj.k_r[:,0,input_obj.nx//2] #one location for now
         
         #numerical value to compare against
 
-        numgam = input_obj.gamma[:,0,old_div(input_obj.nx,2)]
-        numfreq =input_obj.freq[:,0,old_div(input_obj.nx,2)]
+        numgam = input_obj.gamma[:,0,input_obj.nx//2]
+        numfreq =input_obj.freq[:,0,input_obj.nx//2]
         self.name = name
 
         self.M = []
@@ -428,9 +427,9 @@ class _model(object):  #NOT a derived class,but one that takes a class as input
                 k= 1e-5
 
             #print k {n,phi,v,ajpar}
-            M[0,1] = old_div(k,(input_obj.L[i,old_div(input_obj.nx,2),old_div(input_obj.ny,2)]))
-            M[1,0] = (2*m*np.pi/input_obj.meta['lpar'][old_div(input_obj.nx,2)])**2 * input_obj.meta['sig_par'][0]*complex(0,(k)**-2)
-            M[1,1]= -(2*m*np.pi/input_obj.meta['lpar'][old_div(input_obj.nx,2)])**2 * input_obj.meta['sig_par'][0]*complex(0,(k)**-2)
+            M[0,1] = k/(input_obj.L[i,input_obj.nx//2,input_obj.ny//2])
+            M[1,0] = (2*m*np.pi/input_obj.meta['lpar'][input_obj.nx//2])**2 * input_obj.meta['sig_par'][0]*complex(0,(k)**-2)
+            M[1,1]= -(2*m*np.pi/input_obj.meta['lpar'][input_obj.nx//2])**2 * input_obj.meta['sig_par'][0]*complex(0,(k)**-2)
             
             #parallel dynamics
             #M[2,2] = k/(input_obj.L[i,input_obj.nx/2,input_obj.ny/2])
@@ -443,8 +442,8 @@ class _model(object):  #NOT a derived class,but one that takes a class as input
             #ajpar dynamics - effectively parallel electron dynamics instead of 
 
             if haswak:
-                M[0,0] = -(2*m*np.pi/input_obj.meta['lpar'][old_div(input_obj.nx,2)])**2 * input_obj.meta['sig_par'][0]*complex(0,1)
-                M[0,1] = ((2*m*np.pi/input_obj.meta['lpar'][old_div(input_obj.nx,2)])**2 * input_obj.meta['sig_par'][0]*complex(0,1) + M[0,1])
+                M[0,0] = -(2*m*np.pi/input_obj.meta['lpar'][input_obj.nx//2])**2 * input_obj.meta['sig_par'][0]*complex(0,1)
+                M[0,1] = ((2*m*np.pi/input_obj.meta['lpar'][input_obj.nx//2])**2 * input_obj.meta['sig_par'][0]*complex(0,1) + M[0,1])
                 
             if varL:
                 M[0,1] = Lval*M[0,1]     
@@ -476,8 +475,8 @@ class _model(object):  #NOT a derived class,but one that takes a class as input
             
 
             #print k,gamma,where,M,omega
-            chigam = old_div(((numgam - max(gamma))**2),max(gamma))
-            chifreq =old_div(((numfreq - omega[where])**2),omega[where])
+            chigam = ((numgam - max(gamma))**2)/max(gamma)
+            chifreq =((numfreq - omega[where])**2)/omega[where]
 
             self.eigvec.append(eigvec)
             self.omegaA.append(omega)

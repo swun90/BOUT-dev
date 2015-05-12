@@ -10,7 +10,6 @@ http://docs.enthought.com/mayavi/mayavi/auto/example_magnetic_field.html#example
 from __future__ import absolute_import
 from __future__ import division
 from builtins import range
-from past.utils import old_div
 
 
 from boutdata import collect
@@ -79,7 +78,7 @@ def View3D(g,path=None, gb=None):
   
   #calculate Toroidal field
   
-  Btrz = old_div(f(g.psi), g.r)
+  Btrz = f(g.psi)/g.r
   
   
   rmin=g.r[:,0].min()

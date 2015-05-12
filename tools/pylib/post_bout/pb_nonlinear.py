@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 from __future__ import division
 from builtins import range
-from past.utils import old_div
 #some function to plot nonlinear stuff
 from .pb_corral import LinRes
 from .ListDict import ListDictKey, ListDictFilt
@@ -56,7 +55,7 @@ class NLinResDraw(LinRes):
             data = s.ave[0]['nl']
             x = np.array(list(range(data.size)))
 
-            ax =fig1.add_subplot(round(old_div(Nplots,2.0) + 1.0),2,k+1)
+            ax =fig1.add_subplot(round(Nplots/2.0 + 1.0),2,k+1)
             ax.set_ylabel(r'$\frac{ddt_N}{ddt}$',fontsize=12,rotation='horizontal')
             k+=1
             ax.grid(True,linestyle='-',color='.75')

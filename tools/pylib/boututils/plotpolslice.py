@@ -2,7 +2,6 @@ from __future__ import print_function
 from __future__ import division
 from builtins import str
 from builtins import range
-from past.utils import old_div
 import numpy as np
 from boututils import file_import
 from mayavi import mlab
@@ -58,7 +57,7 @@ def plotpolslice(var3d,gridfile,period=1,zangle=0.0, rz=1, fig=0):
         ip=(i+1)%ny
         nskip[i]=0
         for x in range(nx):
-            ns=old_div(np.max(np.abs(zShift[x,ip]-zShift[x,i])),dz)-1
+            ns=np.max(np.abs(zShift[x,ip]-zShift[x,i]))/dz-1
             if ns > nskip[i] : nskip[i] = ns 
 
     nskip = np.int_(np.round(nskip))
@@ -74,7 +73,7 @@ def plotpolslice(var3d,gridfile,period=1,zangle=0.0, rz=1, fig=0):
     for y in range (ny-1) :
       # put in the original points
         for x in range (nx):
-            zind = old_div((zangle - zShift[x,y]),dz)
+            zind = (zangle - zShift[x,y])/dz
             var2d[x,ypos] = zinterp(var3d[x,y,:], zind)
      #     IF KEYWORD_SET(profile) THEN var2d[x,ypos] = var2d[x,ypos] + profile[x,y]
             r[x,ypos] = rxy[x,y]
@@ -87,14 +86,14 @@ def plotpolslice(var3d,gridfile,period=1,zangle=0.0, rz=1, fig=0):
       # and the extra points
     
         for x in range (nx):
-            zi0 = old_div((zangle - zShift[x,y]),dz)
-            zip1 = old_div((zangle - zShift[x,y+1]),dz)
+            zi0 = (zangle - zShift[x,y])/dz
+            zip1 = (zangle - zShift[x,y+1])/dz
 
-            dzi = old_div((zip1 - zi0), (nskip[y] + 1))
+            dzi = (zip1 - zi0)/(nskip[y] + 1)
 
             for i in range (nskip[y]):
                 zi = zi0 + float(i+1)*dzi # zindex 
-                w = old_div(float(i+1),float(nskip[y]+1)) # weighting
+                w = float(i+1)/float(nskip[y]+1) # weighting
 
                 var2d[x,ypos+i] = w*zinterp(var3d[x,y+1,:], zi) + (1.0-w)*zinterp(var3d[x,y,:], zi)
             #  IF KEYWORD_SET(profile) THEN var2d[x,ypos+i] = var2d[x,ypos+i] + w*profile[x,y+1] + (1.0-w)*profile[x,y]
@@ -109,7 +108,7 @@ def plotpolslice(var3d,gridfile,period=1,zangle=0.0, rz=1, fig=0):
   # FINAL POINT
 
     for x in range(nx):
-        zind = old_div((zangle - zShift[x,ny-1]),dz)
+        zind = (zangle - zShift[x,ny-1])/dz
         var2d[x,ypos] = zinterp(var3d[x,ny-1,:], zind)
      # IF KEYWORD_SET(profile) THEN var2d[x,ypos] = var2d[x,ypos] + profile[x,ny-1]
         r[x,ypos] = rxy[x,ny-1]
