@@ -20,7 +20,7 @@ metric = shape.metric()  # Get the metric tensor
 
 phi = (sin(z - x + t) + 0.001*cos(y - z))*sin(2.*pi*x) # Must satisfy Dirichlet BCs for now
 
-Psi = 1e-2*cos(4*x**2 + z - y) # + sin(t)*sin(3*x + 2*z - y))
+Psi = 1e-3*cos(4*x**2 + z - y) # + sin(t)*sin(3*x + 2*z - y))
 
 U  = 2.*cos(2*t)*cos(x - z + 4*y)
 
@@ -61,6 +61,7 @@ B0 = metric.B
 def Grad_parP(f):
     result = Grad_par(f, metric)
     if nonlinear:
+        #result -= b0xGrad_dot_Grad(Psi, f, metric)
         result -= B0*bracket(Psi, f, metric)
     
     return result
@@ -71,16 +72,29 @@ def Grad_parP(f):
 MU0 = 4.0e-7*pi
 Mi = 2.0*1.6726e-27   # Ion mass [kg]
 
+density = 1.0e19       # number density of deuterium [m^-3]
+
 Bbar = 1  # Tesla
 Lbar = 1  # meters
 # Note: With this choice, all geometrical normalisation factors go to 1.
 
+Va = sqrt(Bbar*Bbar / (MU0*density*Mi));
+Tbar = Lbar / Va;
+
 Jpar = Delp2(Psi, metric)
+
+dnorm = Mi / (2.*1.602e-19*Bbar*Tbar)
+print("dnorm = %e" % dnorm)
+
+# Potential
+phip = phi
+if diamag:
+    phip -= 0.5*dnorm*P/B0
 
 ##########################################
 # Parallel electric field
 
-dPsidt = -Grad_parP(phi) + eta * Jpar
+dPsidt = -Grad_parP(phip) + eta * Jpar
 
 if hyperresist > 0.:
     dPsidt -= eta*hyperresist * Delp2(Jpar, metric)
@@ -100,7 +114,7 @@ dUdt = (
 )
 if nonlinear:
     # Bracket method '0' (STD) goes to b0xGrad_dot_Grad
-    dUdt -= b0xGrad_dot_Grad(phi, U, metric)
+    dUdt -= b0xGrad_dot_Grad(phip, U, metric)
 
 #a = B0**2 * b0xGrad_dot_Grad(Psi, J0, metric)
 #b = bxcvz*diff(P, metric.z)
@@ -109,11 +123,11 @@ if nonlinear:
 ##########################################
 # Pressure
 
-dPdt = -b0xGrad_dot_Grad(phi, P0, metric);
+dPdt = -b0xGrad_dot_Grad(phip, P0, metric);
 
 if nonlinear:
     # Bracket method '0' (STD) goes to b0xGrad_dot_Grad
-    dPdt -= b0xGrad_dot_Grad(phi, P, metric)
+    dPdt -= b0xGrad_dot_Grad(phip, P, metric)
 
 vars = [
     (Psi, dPsidt, "Psi"),
@@ -133,22 +147,22 @@ replace_shiftbc = [ (metric.x, x * metric.Lx), (metric.z, (z - shape.zShift) * Z
 
 
 # Potential
-if diamag:
-    # Delp2(phi + 0.5*P/B0) = U + Sphi
-    Sphi = Delp2(phi + 0.5*P/B0, metric) - U
-else:
-    # Delp2(phi) = U + Sphi
-    Sphi = Delp2(phi, metric) - U
+# Delp2(phi) = U + Sphi
+Sphi = Delp2(phi, metric) - U
+
+phibc = phi.subs(replace_shiftbc)
 phi = phi.subs(replace)
 Sphi = Sphi.subs(replace)
 print("[phi]")
 print("solution = "+exprToStr(phi))
+print("\nsolution_zshift = "+exprToStr(phibc))
 print("\nsource = "+exprToStr(Sphi))
 
+Jparbc = Jpar.subs(replace_shiftbc)
 Jpar = Jpar.subs(replace)
 print("\n[J]")
 print("solution = "+exprToStr(Jpar))
-
+print("\nsolution_zshift = "+exprToStr(Jparbc))
 
 # Loop over variables and print solution, source etc.
 for f, dfdt, name in vars:

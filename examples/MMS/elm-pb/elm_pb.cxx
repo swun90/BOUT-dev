@@ -466,9 +466,9 @@ int physics_init(bool restarting) {
     // Phi should be consistent with U
     phi = invert_laplace(U, phi_flags, NULL);
     
-    //if(diamag) {
-    //phi -= 0.5*dnorm * P / B0;
-    //}
+    if(diamag) {
+      phi -= 0.5*dnorm * P / B0;
+    }
   }
   
   /************** SETUP COMMUNICATIONS **************/
@@ -529,10 +529,12 @@ int physics_run(BoutReal t) {
     phi = invert_laplace(U, phi_flags, NULL);
   }
   
+  phi = FieldFactory::get()->create3D("phi:solution", Options::getRoot(), mesh, CELL_CENTRE, t);
+
   if(diamag) {
     phi -= 0.5*dnorm * P / B0;
   }
-  
+
   // Apply a boundary condition on phi for target plates
   //phi.applyBoundary();
   mesh->communicate(phi); 
@@ -590,12 +592,12 @@ int physics_run(BoutReal t) {
   ////////////////////////////////////////////////////
   // Vorticity equation
   
-  ddt(U) = (B0^2) * b0xGrad_dot_Grad(Psi, J0, CELL_CENTRE); // Grad j term
+  ddt(U) = SQ(B0) * b0xGrad_dot_Grad(Psi, J0, CELL_CENTRE); // Grad j term
   
   ddt(U) += b0xcv*Grad(P);  // curvature term
 
   // Parallel current term
-  ddt(U) -= (B0^2)*Grad_parP(Jpar, CELL_CENTRE); // b dot grad j
+  ddt(U) -= SQ(B0)*Grad_parP(Jpar, CELL_CENTRE); // b dot grad j
   
   if(diamag_phi0)
     ddt(U) -= b0xGrad_dot_Grad(phi0, U);   // Equilibrium flow
