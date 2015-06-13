@@ -73,6 +73,8 @@ running = True # Run the simulations?
 
 for nx,nproc in zip(nxlist, nprocs):
     directory = "grid%d" % nx
+
+    pklfile = directory+".pkl"
     
     if running:
         # Generate a mesh file if needed
@@ -90,15 +92,14 @@ for nx,nproc in zip(nxlist, nprocs):
         args = " MZ="+str(nx)+" grid="+filename #+" solver:timestep="+str(0.1/nx)
         
         print("  Running with " + args)
-
         
-
         # Run each simulation in a different directory
         shell("mkdir " + directory)
         shell("cp data/BOUT.inp "+directory)
         # Delete old data
         shell("rm %s/BOUT.dmp.*.nc" % directory)
-    
+        shell("rm %s" % pklfile)
+        
         args = " -d "+directory+" "+args
     
         # Command to run
@@ -110,20 +111,38 @@ for nx,nproc in zip(nxlist, nprocs):
         f = open("run.log."+str(nx), "w")
         f.write(out)
         f.close()
-        
-    for var in varlist:
-        # Collect data
-        E = collect("E_"+var, tind=[1,1], info=False, path=directory)
-        E = E[:,2:-2, :,:]
-        
-        # Average error over domain
-        l2 = sqrt(mean(E**2))
-        linf = max(abs( E ))
-    
-        error_2[var].append( l2 )
-        error_inf[var].append( linf )
 
-        print("%s : l-2 %f l-inf %f" % (var, l2, linf))
+    if isfile(pklfile):
+        # Data has already been collected
+        with open(pklfile, "rb") as f:
+            data_nx   = pickle.load(f)
+            data_e2   = pickle.load(f)
+            data_einf = pickle.load(f)
+            
+        # Check the value of nx is correct
+        if data_nx != nx:
+            raise ValueError("nx in file %s (%d) not expected value (%d)" % (pklfile, data_nx, nx))
+
+        # Copy data into arrays
+        for k,v in data_e2.items():
+            error_2[k].append( v )
+        for k,v in data_einf.items():
+            error_inf[k].append( v )
+    else:
+        # Check if data already collected and analysed
+        for var in varlist:
+            # Collect data
+            E = collect("E_"+var, tind=[1,1], info=False, path=directory)
+            E = E[:,2:-2, :,:]
+        
+            # Average error over domain
+            l2 = sqrt(mean(E**2))
+            linf = max(abs( E ))
+            
+            error_2[var].append( l2 )
+            error_inf[var].append( linf )
+            
+            print("%s : l-2 %f l-inf %f" % (var, l2, linf))
     
     
 dx = 1. / array(nxlist)
