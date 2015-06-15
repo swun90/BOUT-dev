@@ -611,7 +611,7 @@ int physics_run(BoutReal t) {
   if(viscos_perp > 0.0)
     ddt(U) += viscos_perp * Delp2(U);     // Perpendicular viscosity
 
-  ddt(U) -= 10*(SQ(SQ(mesh->dx))*D4DX4(U) + SQ(SQ(mesh->dz))*D4DZ4(U));
+  ddt(U) -= 5*(SQ(SQ(mesh->dx))*D4DX4(U) + SQ(SQ(mesh->dz))*D4DZ4(U));
 
   ////////////////////////////////////////////////////
   // Pressure equation
@@ -629,7 +629,7 @@ int physics_run(BoutReal t) {
   if(diffusion_par > 0.0)
     ddt(P) += diffusion_par * Grad2_par2(P); // Parallel diffusion
   
-  ddt(P) -= 10*(SQ(SQ(mesh->dx))*D4DX4(P) + SQ(SQ(mesh->dz))*D4DZ4(P));
+  ddt(P) -= 5*(SQ(SQ(mesh->dx))*D4DX4(P) + SQ(SQ(mesh->dz))*D4DZ4(P));
 
   ////////////////////////////////////////////////////
   // Compressional effects

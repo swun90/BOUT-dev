@@ -20,7 +20,7 @@ metric = shape.metric()  # Get the metric tensor
 
 phi = (sin(z - x + t) + 0.001*cos(y - z))*sin(2.*pi*x) # Must satisfy Dirichlet BCs for now
 
-Psi = 1e-3*cos(4*x**2 + z - y) # + sin(t)*sin(3*x + 2*z - y))
+Psi = 1e-3*(cos(4*x**2 + z - y) + sin(t)*sin(3*x + 2*z - y))
 
 U  = 2.*cos(2*t)*cos(x - z + 4*y)
 
@@ -32,8 +32,6 @@ bxcvz = -(1./shape.Rxy)**2*cos(y)  # Curvature
 
 eta = 1e-1   # core_resist =  1 / core_lund
 hyperresist = -1e-6   # negative -> none
-
-viscos_par = 1.0
 
 ZMAX = 1
 
