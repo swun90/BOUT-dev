@@ -11,7 +11,7 @@ import pickle
 nxlist = [8, 16, 32, 64]
 varlist = ["P", "Psi", "U"]
 
-tind = -1
+tind = 1
 
 error_2 = {}
 error_inf = {}

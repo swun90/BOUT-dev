@@ -9,7 +9,7 @@
 from __future__ import print_function
 from __future__ import division
 
-nxlist = [4, 8, 16, 32, 64, 128]
+nxlist = [8, 16, 32, 64, 128, 256]
 
 from boututils import DataFile
 from boututils import shell
