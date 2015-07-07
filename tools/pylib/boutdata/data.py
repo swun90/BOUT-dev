@@ -16,6 +16,16 @@ except ImportError:
     print("ERROR: boututils.DataFile couldn't be loaded")
     raise
 
+class BoutDim(object):
+    """
+    Represents a dimension
+    
+    """
+    name = ""
+    label = ""
+    units = ""
+    data = None
+    
 class BoutVar(object):
     """
     Data representing an output variable
@@ -24,15 +34,36 @@ class BoutVar(object):
     ============
     
     data   NumPy array of the data
+
+    dim     A list of dimensions, each of which contains:
+      - name 
+      - label  Short axis label (e.g. "Time (sec)")
+      - units  (e.g. "s")
+      - data   Axis values (NumPy array)
+    order   Index of time dimension
+    time    A shortcut to the time data (dim[order].data). May be None
     """
     def __init__(self):
         self.data = None
+        
+        
+
+        self.dim = [t]
+        self.order = 0
+        self.time = t.data
     
 class BoutData(object):
     """
     Data members
     ============
 
+    dim     A list of dimensions, each of which contains:
+      - name 
+      - label  Short axis label (e.g. "Time (sec)")
+      - units  (e.g. "s")
+      - data   Axis values (NumPy array)
+
+    
     options   A dictionary of settings
     """
     def __init__(self, path=".", prefix="BOUT.dmp"):
@@ -46,6 +77,14 @@ class BoutData(object):
         self.label = path
 
         # Check that the path contains some data
+
+        # Dimensions
+        t = BoutDim()
+        t.name  = "Time"
+        t.label = "Time"
+        t.data  = collect("t_array", path=path, prefix=prefix)
+        
+        self.dimensions = [t]
         
         # Options
         self.options = {}
@@ -107,3 +146,5 @@ class BoutData(object):
             return data
         except:
             return None
+
+        

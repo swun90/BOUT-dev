@@ -15,3 +15,5 @@ from boutdata.pol_slice import pol_slice
 
 from boutdata.gen_surface import gen_surface
 
+from boutdata.data import BoutData
+
