@@ -43,15 +43,16 @@ class BoutVar(object):
     order   Index of time dimension
     time    A shortcut to the time data (dim[order].data). May be None
     """
-    def __init__(self):
-        self.data = None
-        
-        
-
-        self.dim = [t]
-        self.order = 0
-        self.time = t.data
     
+    data = None
+    dim = None
+    name = ""
+    source = ""
+        
+class BoutOptions(object):
+    def __init__(self, file):
+        pass
+            
 class BoutData(object):
     """
     Data members
@@ -62,9 +63,8 @@ class BoutData(object):
       - label  Short axis label (e.g. "Time (sec)")
       - units  (e.g. "s")
       - data   Axis values (NumPy array)
-
     
-    options   A dictionary of settings
+    options   BoutOptions object
     """
     def __init__(self, path=".", prefix="BOUT.dmp"):
         """
@@ -83,11 +83,13 @@ class BoutData(object):
         t.name  = "Time"
         t.label = "Time"
         t.data  = collect("t_array", path=path, prefix=prefix)
+
+        # Get size of x,y,z dimensions
         
         self.dimensions = [t]
         
         # Options
-        self.options = {}
+        self.options = BoutOptions(path)
         #with open( os.path.join(self._path, "BOUT.inp"), "r") as f:
         
         # Available variables
@@ -122,6 +124,16 @@ class BoutData(object):
             
             # Collect the data from the repository
             var.data = collect(name, path=self._path, prefix=self._prefix)
+            
+            try:
+                dim = []
+                shape = var.data.shape
+                if shape[0] == len(dimensions[0].data):
+                    # First dimension is time
+                    dim = [dimensions[0]]
+            except:
+                # Probably data is a scalar, with no shape
+                pass
             
             var.name = name
             var.source = self._path
