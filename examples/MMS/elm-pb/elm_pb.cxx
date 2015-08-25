@@ -110,6 +110,7 @@ BoutReal Zeff;            // Z effective for resistivity formula
 
 BoutReal hyperresist;    // Hyper-resistivity coefficient (in core only)
 BoutReal ehyperviscos;   // electron Hyper-viscosity coefficient
+BoutReal electron_par_viscosity; // Electron parallel viscosity
 
 // Metric coefficients
 Field2D Rxy, Bpxy, Btxy, B0, hthe;
@@ -258,6 +259,7 @@ int physics_init(bool restarting) {
   OPTION(options, core_lund,         0.0);    // Lundquist number in core region
   OPTION(options, hyperresist,       -1.0);
   OPTION(options, ehyperviscos,      -1.0);
+  OPTION(options, electron_par_viscosity, -1.0);
   OPTION(options, spitzer_resist,    false);  // Use Spitzer resistivity
   OPTION(options, Zeff,              2.0);    // Z effective
 
@@ -577,6 +579,11 @@ int physics_run(BoutReal t) {
     // grad_par(T_e) correction
 
     ddt(Psi) += 1.71 * dnorm * 0.5 * Grad_parP(P, CELL_YLOW) / B0;
+  }
+
+  // Parallel electron viscosity
+  if(electron_par_viscosity > 0.0) {
+    ddt(Psi) += electron_par_viscosity * Grad2_par2(Psi);
   }
 
   // Hyper-resistivity

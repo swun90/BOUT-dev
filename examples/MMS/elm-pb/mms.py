@@ -20,7 +20,7 @@ metric = shape.metric()  # Get the metric tensor
 
 phi = (sin(z - x + t) + 0.001*cos(y - z))*sin(2.*pi*x) # Must satisfy Dirichlet BCs for now
 
-Psi = 1e-3*(cos(4*x**2 + z - y) + sin(t)*sin(3*x + 2*z - y))
+Psi = 1e-2*(cos(4*x**2 + z - y) + sin(t)*sin(3*x + 2*z - y))
 
 U  = 2.*cos(2*t)*cos(x - z + 4*y)
 
@@ -32,6 +32,7 @@ bxcvz = -(1./shape.Rxy)**2*cos(y)  # Curvature
 
 eta = 1e-1   # core_resist =  1 / core_lund
 hyperresist = -1e-6   # negative -> none
+electron_par_viscosity = 0.1
 
 ZMAX = 1
 
@@ -97,10 +98,8 @@ dPsidt = -Grad_parP(phip) + eta * Jpar
 if hyperresist > 0.:
     dPsidt -= eta*hyperresist * Delp2(Jpar, metric)
 
-#a = Grad_par(B0*phi, metric)/B0
-#b = bracket(Psi, B0*phi, metric)
-#c = eta * Jpar
-#d = eta*hyperresist * Delp2(Jpar, metric)
+if electron_par_viscosity > 0.:
+    dPsidt += electron_par_viscosity * Grad2_par2(Psi, metric)
 
 ##########################################
 # Vorticity

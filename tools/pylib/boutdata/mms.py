@@ -139,6 +139,14 @@ def Laplace_par(f, metric=identity):
     return diff( (metric.J/metric.g_22)*diff(f, metric.y), metric.y)/ metric.J
 
 
+def Grad2_par2(f, metric = identity):
+    """ Second parallel derivative
+    (b dot Grad)(b dot Grad)
+    
+    """
+    sg = sqrt(metric.g_22);
+    return DDY(1./sg, metric)*DDY(f, metric)/sg + D2DY2(f, metric)/metric.g_22
+
 # Convert expression to string
 
 def trySimplify(expr):
