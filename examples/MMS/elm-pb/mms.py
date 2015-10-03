@@ -99,7 +99,7 @@ if hyperresist > 0.:
     dPsidt -= eta*hyperresist * Delp2(Jpar, metric)
 
 if electron_par_viscosity > 0.:
-    dPsidt += electron_par_viscosity * Grad2_par2(Psi, metric)
+    dPsidt -= electron_par_viscosity * Grad2_par2(Jpar, metric)
 
 ##########################################
 # Vorticity

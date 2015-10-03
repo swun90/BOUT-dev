@@ -583,7 +583,7 @@ int physics_run(BoutReal t) {
 
   // Parallel electron viscosity
   if(electron_par_viscosity > 0.0) {
-    ddt(Psi) += electron_par_viscosity * Grad2_par2(Psi);
+    ddt(Psi) -= electron_par_viscosity * Grad2_par2(Jpar);
   }
 
   // Hyper-resistivity
