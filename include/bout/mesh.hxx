@@ -248,6 +248,7 @@ class Mesh {
   
  private:
   int gaussj(BoutReal **a, int n);
+  int invert3x3(BoutReal **a);
   int *indxc, *indxr, *ipiv, ilen;
 };
 

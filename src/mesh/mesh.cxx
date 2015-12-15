@@ -432,7 +432,7 @@ int Mesh::calcCovariant() {
       a[0][2] = a[2][0] = g13(jx, jy);
 
       // invert
-      if(gaussj(a, 3)) {
+      if(invert3x3(a)) {
 	output.write("\tERROR: metric tensor is singular at (%d, %d)\n", jx, jy);
 	return 1;
       }
@@ -513,7 +513,7 @@ int Mesh::calcContravariant() {
       a[0][2] = a[2][0] = g_13(jx, jy);
 
       // invert
-      if(gaussj(a, 3)) {
+      if(invert3x3(a)) {
 	output.write("\tERROR: metric tensor is singular at (%d, %d)\n", jx, jy);
 	return 1;
       }
@@ -611,6 +611,45 @@ const vector<int> Mesh::readInts(const string &name, int n) {
 
   return result;
 }
+
+// Explicit inversion of a 3x3 matrix
+int Mesh::invert3x3(BoutReal **a){
+  TRACE("Mesh::invert3x3");
+  static bool warned = false;
+
+  //Calculate the co-factors
+  BoutReal A = a[1][1]*a[2][2] - a[1][2]*a[2][1];
+  BoutReal B = a[1][2]*a[2][0] - a[1][0]*a[2][2];
+  BoutReal C = a[1][0]*a[2][1] - a[1][1]*a[2][0];
+  BoutReal D = a[0][2]*a[2][1] - a[0][1]*a[2][2];
+  BoutReal E = a[0][0]*a[2][2] - a[0][2]*a[2][0];
+  BoutReal F = a[0][1]*a[2][0] - a[0][0]*a[2][1];
+  BoutReal G = a[0][1]*a[1][2] - a[0][2]*a[1][1];
+  BoutReal H = a[0][2]*a[1][0] - a[0][0]*a[1][2];
+  BoutReal I = a[0][0]*a[1][1] - a[0][1]*a[1][0];
+
+  //Calculate the determinant
+  BoutReal det=a[0][0]*A + a[0][1]*B + a[0][2]*C;
+
+  if(abs(det)<1.0e-14){
+    //throw BoutException("Determinant of metric < 1.0e-14 --> Basically singular");
+    return 1;
+  }
+  if(abs(det)<1.0e-6 && !warned){
+    output<<"Warning determinant of metric tensor is small -- could cause problems"<<endl;
+    //Ensure we only see this warning once
+    warned = true; 
+  }
+
+  //Now construct the output, overwrites input
+  BoutReal detinv = 1.0/det;
+  
+  a[0][0] = A*detinv; a[0][1] = D*detinv; a[0][2] = G*detinv;
+  a[1][0] = B*detinv; a[1][1] = E*detinv; a[1][2] = H*detinv;
+  a[2][0] = C*detinv; a[2][1] = F*detinv; a[2][2] = I*detinv;
+
+  return 0;
+};
 
 /*******************************************************************************
  * Gauss-Jordan matrix inversion
